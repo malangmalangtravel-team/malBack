@@ -1,57 +1,99 @@
 package com.malback.travel.service;
 
-import com.malback.travel.dto.TravelCommentDto;
+import com.malback.travel.dto.travelCommentDto.TravelCommentRequestDto;
+import com.malback.travel.dto.travelCommentDto.TravelCommentResponseDto;
 import com.malback.travel.entity.TravelComment;
 import com.malback.travel.entity.TravelPost;
 import com.malback.travel.repository.TravelCommentRepository;
 import com.malback.travel.repository.TravelPostRepository;
+import com.malback.user.entity.User;
+import com.malback.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class TravelCommentService {
+
     private final TravelCommentRepository travelCommentRepository;
     private final TravelPostRepository travelPostRepository;
+    private final UserRepository userRepository;
 
-    public List<TravelCommentDto> getAllCommentsByPost(Long postId) {
-        return travelCommentRepository.findByTravelPostId(postId)
-                .stream().map(TravelCommentDto::fromEntity)
-                .collect(Collectors.toList());
-    }
+    // 댓글 트리 구조
+    public List<TravelCommentResponseDto> getCommentsByPostId(Long postId) {
+        List<TravelComment> comments = travelCommentRepository.findByTravelPostId(postId).stream()
+                .filter(comment -> comment.getDeletedAt() == null)
+                .toList();
 
-    public TravelCommentDto getCommentById(Long id) {
-        return travelCommentRepository.findById(id)
-                .map(TravelCommentDto::fromEntity)
-                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+        // 1. 엔티티 -> DTO 변환
+        Map<Long, TravelCommentResponseDto> dtoMap = new HashMap<>();
+        List<TravelCommentResponseDto> roots = new ArrayList<>();
+
+        for (TravelComment comment : comments) {
+            TravelCommentResponseDto dto = TravelCommentResponseDto.fromEntity(comment);
+            dtoMap.put(dto.getId(), dto);
+        }
+
+        // 2. 트리 구성
+        for (TravelCommentResponseDto dto : dtoMap.values()) {
+            if (dto.getParentCommentId() == null) {
+                roots.add(dto);
+            } else {
+                TravelCommentResponseDto parent = dtoMap.get(dto.getParentCommentId());
+                if (parent != null) {
+                    parent.getChildren().add(dto);
+                }
+            }
+        }
+
+        return roots;
     }
 
     @Transactional
-    public TravelCommentDto createComment(TravelCommentDto dto) {
-        // travelPost를 가져오기 (예: postId로 조회)
-        TravelPost travelPost = travelPostRepository.findById(dto.getPostId())
-                .orElseThrow(() -> new RuntimeException("Post not found"));  // 포스트가 존재하지 않으면 예외 발생
+    public TravelCommentResponseDto createComment(TravelCommentRequestDto dto) {
 
-        // parentComment가 존재하면 parentComment도 조회하여 설정
-        TravelComment parentComment = null;
+        // 게시글 조회
+        TravelPost post = travelPostRepository.findById(dto.getPostId())
+                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+
+        // 유저 조회
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 부모 댓글 조회 (대댓글일 경우)
+        TravelComment parent = null;
         if (dto.getParentCommentId() != null) {
-            parentComment = travelCommentRepository.findById(dto.getParentCommentId())
-                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+            parent = travelCommentRepository.findById(dto.getParentCommentId())
+                    .orElseThrow(() -> new IllegalArgumentException("부모 댓글을 찾을 수 없습니다."));
         }
 
-        // DTO를 Entity로 변환하여 저장
-        TravelComment comment = dto.toEntity(travelPost);  // TravelPost를 인자로 전달
-        comment.setParentComment(parentComment);  // 부모 댓글 설정
-
+        // 댓글 생성
+        TravelComment comment = dto.toEntity(post, user, parent);
         TravelComment saved = travelCommentRepository.save(comment);
-        return TravelCommentDto.fromEntity(saved);
+
+        return TravelCommentResponseDto.fromEntity(saved);
+    }
+
+    @Transactional
+    public TravelCommentResponseDto updateComment(Long commentId, String newContent) {
+        TravelComment comment = travelCommentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+        comment.setContent(newContent);
+        return TravelCommentResponseDto.fromEntity(comment);
     }
 
     @Transactional
     public void deleteComment(Long id) {
-        travelCommentRepository.deleteById(id);
+        TravelComment comment = travelCommentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("댓글을 찾을 수 없습니다."));
+        comment.setDeletedAt(LocalDateTime.now());
     }
 }
