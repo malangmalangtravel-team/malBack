@@ -11,12 +11,15 @@ import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
+/*
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+ */
 public class TravelPostDto {
+    /*
     private Long id;
     private String countryName;
     private String type;
@@ -64,4 +67,5 @@ public class TravelPostDto {
                 .updatedAt(this.updatedAt != null ? this.updatedAt : LocalDateTime.now()) // 수정일시 처리
                 .build();
     }
+    */
 }

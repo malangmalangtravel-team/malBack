@@ -1,10 +1,13 @@
 package com.malback.travel.controller;
 
+import com.malback.common.CommentPageDto;
 import com.malback.travel.dto.travelCommentDto.TravelCommentRequestDto;
 import com.malback.travel.dto.travelCommentDto.TravelCommentResponseDto;
 import com.malback.travel.service.TravelCommentService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,11 +19,22 @@ public class TravelCommentController {
 
     private final TravelCommentService travelCommentService;
 
-    // 댓글 목록 조회
-    // /api/travel-comments?postId=17 형식 지원
+    // 부모 댓글 ID로 자식 댓글 조회
+    @GetMapping("/child-comments")
+    public List<TravelCommentResponseDto> getChildComments(@RequestParam Long parentCommentId) {
+        return travelCommentService.getChildComments(parentCommentId);
+    }
+
+
+    // 댓글 조회 (페이징 적용)
     @GetMapping
-    public List<TravelCommentResponseDto> getCommentsByPostId(@RequestParam Long postId) {
-        return travelCommentService.getCommentsByPostId(postId);
+    public CommentPageDto<TravelCommentResponseDto> getCommentsByPostId(
+            @RequestParam Long postId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        Pageable pageable = PageRequest.of(page, size);
+        return travelCommentService.getCommentsByPostId(postId, pageable);
     }
 
     // 댓글 등록
@@ -43,8 +57,8 @@ public class TravelCommentController {
 
     // 댓글 수정
     @PutMapping("/{id}")
-    public TravelCommentResponseDto updateComment(@PathVariable Long id, @RequestBody String content) {
-        return travelCommentService.updateComment(id, content);
+    public TravelCommentResponseDto updateComment(@PathVariable Long id, @RequestBody TravelCommentRequestDto requestDto) {
+        return travelCommentService.updateComment(id, requestDto.getContent());
     }
 
     // 댓글 삭제 (Soft delete)

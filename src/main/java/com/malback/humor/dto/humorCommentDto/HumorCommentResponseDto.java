@@ -1,6 +1,6 @@
-package com.malback.travel.dto.travelCommentDto;
+package com.malback.humor.dto.humorCommentDto;
 
-import com.malback.travel.entity.TravelComment;
+import com.malback.humor.entity.HumorComment;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,7 +12,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class TravelCommentResponseDto {
+public class HumorCommentResponseDto {
     private Long id;
     private Long postId;
     private String email;
@@ -21,17 +21,16 @@ public class TravelCommentResponseDto {
     private Long parentCommentId;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private List<HumorCommentResponseDto> children = new ArrayList<>();
 
-    private List<TravelCommentResponseDto> children;
-
-    public static TravelCommentResponseDto fromEntity(TravelComment comment) {
-        return TravelCommentResponseDto.builder()
+    public static HumorCommentResponseDto fromEntity(HumorComment comment) {
+        return HumorCommentResponseDto.builder()
                 .id(comment.getId())
-                .postId(comment.getTravelPost().getId())
-                .email(comment.getUser().getEmail())
-                .nickname(comment.getUser().getNickname())
+                .postId(comment.getPostId())
+                .email(comment.getEmail())
+                .nickname(comment.getNickname())
                 .content(comment.getContent())
-                .parentCommentId(comment.getParentComment() != null ? comment.getParentComment().getId() : null)
+                .parentCommentId(comment.getParentCommentId())
                 .createdAt(comment.getCreatedAt())
                 .updatedAt(comment.getUpdatedAt())
                 .children(new ArrayList<>())

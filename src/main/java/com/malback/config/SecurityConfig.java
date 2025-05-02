@@ -41,7 +41,9 @@ public class SecurityConfig {
                         .logoutSuccessUrl("http://localhost:3030/") // 로그아웃 후 리다이렉션할 프론트 주소
                         .invalidateHttpSession(true) // 세션 무효화
                         .deleteCookies("JSESSIONID") // 세션 쿠키 삭제
-                );
+                )
+
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()));
 
         return http.build();
     }
