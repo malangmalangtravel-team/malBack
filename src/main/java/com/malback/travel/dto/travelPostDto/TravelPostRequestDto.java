@@ -8,7 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TravelPostCreateRequest {
+public class TravelPostRequestDto {
     @NotBlank
     private String type;
 

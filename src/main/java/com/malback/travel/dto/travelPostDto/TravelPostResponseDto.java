@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class TravelPostResponse {
+public class TravelPostResponseDto {
     private Long id;
     private String countryName;
     private BoardType type;
@@ -21,12 +21,12 @@ public class TravelPostResponse {
     private String email;
     private String nickname;
 
-    public static TravelPostResponse fromEntity(TravelPost travelPost, UserRepository userRepository) {
+    public static TravelPostResponseDto fromEntity(TravelPost travelPost, UserRepository userRepository) {
         String nickname = userRepository.findByEmail(travelPost.getEmail())
                 .map(user -> user.getNickname())
                 .orElse("알 수 없음");
 
-        return TravelPostResponse.builder()
+        return TravelPostResponseDto.builder()
                 .id(travelPost.getId())
                 .countryName(travelPost.getCountry().getCountryName())
                 .type(BoardType.valueOf(travelPost.getType().name()))
@@ -39,8 +39,8 @@ public class TravelPostResponse {
                 .build();
     }
 
-    public static TravelPostResponse fromEntity(TravelPost travelPost) {
-        return TravelPostResponse.builder()
+    public static TravelPostResponseDto fromEntity(TravelPost travelPost) {
+        return TravelPostResponseDto.builder()
                 .id(travelPost.getId())
                 .countryName(travelPost.getCountry().getCountryName())
                 .type(BoardType.valueOf(travelPost.getType().name()))

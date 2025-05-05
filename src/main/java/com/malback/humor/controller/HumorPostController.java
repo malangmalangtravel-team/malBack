@@ -47,7 +47,7 @@ public class HumorPostController {
         return humorPostService.getPostById(id); // ✅ userRepository 제거
     }
 
-    @PostMapping("/create")
+    @PostMapping("/createPost")
     public HumorPostResponseDto createPost(@Valid @RequestBody HumorPostRequestDto request) {
         return humorPostService.createPost(request);
     }

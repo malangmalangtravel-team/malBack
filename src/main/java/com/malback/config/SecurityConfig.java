@@ -3,6 +3,7 @@ package com.malback.config;
 import com.malback.user.repository.UserRepository;
 import com.malback.user.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -21,24 +22,26 @@ import java.util.List;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService customOAuth2UserService;
+    @Value("${malang.frontend-url}")
+    private String frontendUrl;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/api/**").permitAll()
+                        .requestMatchers("/", "/api/**", "/sitemap.xml", "/sitemap-humor-posts.xml", "sitemap-travel-posts.xml").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOAuth2UserService)
                         )
-                        .defaultSuccessUrl("http://localhost:3030/", true) // 로그인 후 리다이렉트
+                        .defaultSuccessUrl(frontendUrl, true) // 로그인 후 리다이렉트
                 )
                 .logout(logout -> logout
                         .logoutUrl("/logout") // Spring Security 기본 로그아웃 URL
-                        .logoutSuccessUrl("http://localhost:3030/") // 로그아웃 후 리다이렉션할 프론트 주소
+                        .logoutSuccessUrl(frontendUrl) // 로그아웃 후 리다이렉션할 프론트 주소
                         .invalidateHttpSession(true) // 세션 무효화
                         .deleteCookies("JSESSIONID") // 세션 쿠키 삭제
                 )
@@ -52,7 +55,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of("http://localhost:3030"));  // 프론트엔드 주소
+        config.setAllowedOrigins(List.of(frontendUrl));  // 프론트엔드 주소
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);  // 쿠키 인증 허용 (필요한 경우)

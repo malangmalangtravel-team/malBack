@@ -27,7 +27,7 @@ public class JjangParsing {
     private String dbPassword;
 
     //@Scheduled(cron = "0 0 0 * * ?") // 매일 자정에 실행
-    @Scheduled(cron = "0 30 11 * * ?") // 리눅스 서버랑 6시간 차이남. 리눅스가 6시간 느림. 11시 30분 + 6시간 = 18시 30분
+    //@Scheduled(cron = "0 30 11 * * ?") // 리눅스 서버랑 6시간 차이남. 리눅스가 6시간 느림. 11시 30분 + 6시간 = 18시 30분
     public void parseWebsiteAndStoreInDatabase() {
         Timestamp currentDate = new Timestamp(new Date().getTime());
 
@@ -36,7 +36,7 @@ public class JjangParsing {
             System.out.println("MySQL 드라이버 로딩 성공");
 
             try (Connection conn = DriverManager.getConnection(dbUrl, dbUser, dbPassword)) {
-                System.out.println("MySQL 연결 성공");
+                System.out.println("MySQL 연결 성공, 짱공유 파싱 시작");
 
                 for (int page = 1; page < 3; page++) {
                     String url = "https://www.jjang0u.com/board/list/fun/" + page;
@@ -60,6 +60,12 @@ public class JjangParsing {
                             continue; // "짱공" 포함된 글은 저장하지 않고 다음 글로 넘어감
                         }
 
+                        // 중복 방지
+                        if (isTitleExists(conn, title)) {
+                            System.out.println("중복된 제목으로 저장 생략: " + title);
+                            continue;
+                        }
+
                         insertIntoDatabase(conn, title, content, currentDate);
                     }
                 }
@@ -75,6 +81,15 @@ public class JjangParsing {
         Document doc = Jsoup.connect(url).get();
         Element contentElement = doc.selectFirst("section#post_content");
         return contentElement != null ? contentElement.html() : "";
+    }
+
+    private boolean isTitleExists(Connection conn, String title) throws SQLException {
+        String checkSql = "SELECT COUNT(*) FROM humor_post WHERE title LIKE CONCAT('%', ?, '%')";
+        try (PreparedStatement stmt = conn.prepareStatement(checkSql)) {
+            stmt.setString(1, title);
+            ResultSet rs = stmt.executeQuery();
+            return rs.next() && rs.getInt(1) > 0;
+        }
     }
 
     private void insertIntoDatabase(Connection conn, String title, String content, Timestamp date) throws SQLException {

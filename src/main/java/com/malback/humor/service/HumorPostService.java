@@ -19,17 +19,21 @@ import java.time.LocalDateTime;
 public class HumorPostService {
 
     private final HumorPostRepository humorPostRepository;
-    private final UserRepository userRepository; // ✅ 추가
+    private final UserRepository userRepository;
 
     public Page<HumorPostResponseDto> getAllPosts(Pageable pageable, HumorBoardType type) {
         return humorPostRepository.findByDeletedAtIsNullAndType(pageable, type)
                 .map(post -> HumorPostResponseDto.fromEntity(post, userRepository));
     }
 
+    @Transactional
     public HumorPostResponseDto getPostById(Long id) {
+        humorPostRepository.incrementViewCount(id); // 조회수 증가
+
         HumorPost post = humorPostRepository.findById(id)
                 .filter(p -> p.getDeletedAt() == null)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않거나 삭제된 게시글입니다."));
+
         return HumorPostResponseDto.fromEntity(post, userRepository);
     }
 
@@ -57,14 +61,14 @@ public class HumorPostService {
         humorPostRepository.save(post);
     }
 
-    // ✅ 이전 글
+    // 이전 글
     public HumorPostResponseDto getPreviousPost(Long currentId) {
         return humorPostRepository.findFirstByIdLessThanOrderByIdDesc(currentId)
                 .map(post -> HumorPostResponseDto.fromEntity(post, userRepository))
                 .orElse(null);
     }
 
-    // ✅ 다음 글
+    // 다음 글
     public HumorPostResponseDto getNextPost(Long currentId) {
         return humorPostRepository.findFirstByIdGreaterThanOrderByIdAsc(currentId)
                 .map(post -> HumorPostResponseDto.fromEntity(post, userRepository))
