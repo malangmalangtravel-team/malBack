@@ -15,15 +15,15 @@ public class Scheduler {
     private final HumorPickParsing humorPickParsing;
     private final JjangParsing jjangParsing;
 
-    @Scheduled(cron = "0 0 3 * * *") // 매일 새벽 3시
+    @Scheduled(cron = "0 00 03 * * *") // 매일 새벽 3시
     public void updateSitemap() {
         sitemapService.appendYesterdayPostsToSitemap();
     }
-    @Scheduled(cron = "0 58 23 * * *") // 매일 23시 58분
+    @Scheduled(cron = "0 55 23 * * *") // 매일 23시 55분
     public void setHumorPickParsing() {
         humorPickParsing.parseWebsiteAndStoreInDatabase();
     }
-    @Scheduled(cron = "0 58 23 * * *") // 매일 // 매일 23시 58분
+    @Scheduled(cron = "0 50 23 * * *") // 매일 23시 50분
     public void setJjangParsing() {
         jjangParsing.parseWebsiteAndStoreInDatabase();
     }
