@@ -5,6 +5,8 @@ import com.malback.support.dto.SupportResponseDto;
 import com.malback.support.entity.Support;
 import com.malback.support.enums.SupportBoardType;
 import com.malback.support.repository.SupportRepository;
+import com.malback.travel.dto.travelPostDto.TravelPostResponseDto;
+import com.malback.travel.entity.TravelPost;
 import com.malback.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -66,12 +68,19 @@ public class SupportService {
         return SupportResponseDto.fromEntity(supportRepository.save(post), userRepository);
     }
 
+
     @Transactional
-    public void deletePost(Long id) {
+    public SupportResponseDto softDeletePost(Long id) {
         Support post = supportRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id=" + id));
+
+        if (post.getDeletedAt() != null) {
+            throw new RuntimeException("이미 삭제된 게시글입니다.");
+        }
 
         post.setDeletedAt(LocalDateTime.now());
-        supportRepository.save(post);
+        Support savedPost = supportRepository.save(post);
+
+        return SupportResponseDto.fromEntity(savedPost, userRepository);
     }
 }

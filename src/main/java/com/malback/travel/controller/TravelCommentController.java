@@ -56,7 +56,7 @@ public class TravelCommentController {
     }
 
     // 댓글 수정
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public TravelCommentResponseDto updateComment(@PathVariable Long id, @RequestBody TravelCommentRequestDto requestDto) {
         return travelCommentService.updateComment(id, requestDto.getContent());
     }

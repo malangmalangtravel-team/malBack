@@ -9,6 +9,8 @@ import com.malback.support.dto.SupportRequestDto;
 import com.malback.support.dto.SupportResponseDto;
 import com.malback.support.entity.Support;
 import com.malback.support.enums.SupportBoardType;
+import com.malback.travel.dto.travelPostDto.TravelPostResponseDto;
+import com.malback.travel.entity.TravelPost;
 import com.malback.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -71,13 +73,20 @@ public class HumorPostService {
     }
 
     @Transactional
-    public void deletePost(Long id) {
+    public HumorPostResponseDto softDeletePost(Long id) {
         HumorPost post = humorPostRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id=" + id));
+
+        if (post.getDeletedAt() != null) {
+            throw new RuntimeException("이미 삭제된 게시글입니다.");
+        }
 
         post.setDeletedAt(LocalDateTime.now());
-        humorPostRepository.save(post);
+        HumorPost savedPost = humorPostRepository.save(post);
+
+        return HumorPostResponseDto.fromEntity(savedPost, userRepository);
     }
+
 
     // 이전 글
     public HumorPostResponseDto getPreviousPost(Long currentId) {

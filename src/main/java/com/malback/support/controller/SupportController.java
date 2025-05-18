@@ -4,6 +4,7 @@ import com.malback.support.dto.SupportRequestDto;
 import com.malback.support.dto.SupportResponseDto;
 import com.malback.support.enums.SupportBoardType;
 import com.malback.support.service.SupportService;
+import com.malback.travel.dto.travelPostDto.TravelPostResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -51,14 +52,14 @@ public class SupportController {
         return supportService.createPost(request);
     }
 
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public SupportResponseDto updatePost(@PathVariable Long id, @Valid @RequestBody SupportRequestDto request) {
         return supportService.updatePost(id, request);
     }
 
-    @PostMapping("/{id}")
-    public void deletePost(@PathVariable Long id) {
-        supportService.deletePost(id);
+    @PostMapping("/delete/{id}")
+    public SupportResponseDto softDeletePost(@PathVariable Long id) {
+        return supportService.softDeletePost(id);
     }
 }
 

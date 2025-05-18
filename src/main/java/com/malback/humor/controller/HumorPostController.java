@@ -4,6 +4,7 @@ import com.malback.humor.dto.humorPostDto.HumorPostRequestDto;
 import com.malback.humor.dto.humorPostDto.HumorPostResponseDto;
 import com.malback.humor.enums.HumorBoardType;
 import com.malback.humor.service.HumorPostService;
+import com.malback.travel.dto.travelPostDto.TravelPostResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -51,14 +52,14 @@ public class HumorPostController {
         return humorPostService.createPost(request);
     }
 
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public HumorPostResponseDto updatePost(@PathVariable Long id, @Valid @RequestBody HumorPostRequestDto request) {
         return humorPostService.updatePost(id, request);
     }
 
-    @PostMapping("/{id}")
-    public void deletePost(@PathVariable Long id) {
-        humorPostService.deletePost(id);
+    @PostMapping("/delete/{id}")
+    public HumorPostResponseDto softDeletePost(@PathVariable Long id) {
+        return humorPostService.softDeletePost(id);
     }
 
     @GetMapping("/prev/{postId}")

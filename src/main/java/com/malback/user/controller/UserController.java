@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     // 닉네임 변경
-    @PutMapping("/nickname")
+    @PostMapping("/nickname")
     public ResponseEntity<?> updateNickname(@RequestBody UpdateNicknameRequest request, HttpSession session) {
         String email = (String) session.getAttribute("email");
         userService.updateNickname(email, request.getNickname());

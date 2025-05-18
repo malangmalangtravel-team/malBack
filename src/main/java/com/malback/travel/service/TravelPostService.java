@@ -20,6 +20,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -45,8 +47,8 @@ public class TravelPostService {
         PageRequest pageRequest = PageRequest.of(page, size);
 
         Page<TravelPost> posts = (type == null)
-                ? travelPostRepository.findByCountry_CountryNameOrderByIdDesc(countryName, pageRequest)
-                : travelPostRepository.findByCountry_CountryNameAndTypeOrderByIdDesc(countryName, type, pageRequest);
+                ? travelPostRepository.findByCountry_CountryNameAndDeletedAtIsNullOrderByIdDesc(countryName, pageRequest)
+                : travelPostRepository.findByCountry_CountryNameAndTypeAndDeletedAtIsNullOrderByIdDesc(countryName, type, pageRequest);
 
         return posts.map(post -> TravelPostResponseDto.fromEntity(post, userRepository));
     }
@@ -98,10 +100,19 @@ public class TravelPostService {
     }
 
     @Transactional
-    public void deletePost(Long id) {
-        travelPostRepository.deleteById(id);
-    }
+    public TravelPostResponseDto softDeletePost(Long id) {
+        TravelPost post = travelPostRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("게시글을 찾을 수 없습니다. id=" + id));
 
+        if (post.getDeletedAt() != null) {
+            throw new RuntimeException("이미 삭제된 게시글입니다.");
+        }
+
+        post.setDeletedAt(LocalDateTime.now());
+        TravelPost savedPost = travelPostRepository.save(post);
+
+        return TravelPostResponseDto.fromEntity(savedPost, userRepository);
+    }
 
     // 이전 글
     public TravelPostResponseDto getPreviousPost(Long currentId) {

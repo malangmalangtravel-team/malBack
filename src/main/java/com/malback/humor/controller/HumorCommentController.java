@@ -46,7 +46,7 @@ public class HumorCommentController {
     }
 
     // 댓글 수정
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public HumorCommentResponseDto updateComment(@PathVariable Long id, @RequestBody HumorCommentRequestDto requestDto) {
         return humorCommentService.updateComment(id, requestDto.getContent());
     }

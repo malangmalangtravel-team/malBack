@@ -59,15 +59,16 @@ public class TravelPostController {
         return travelPostService.createPost(countryName, request);
     }
 
-    @PutMapping("/{id}")
+    @PostMapping("/{id}")
     public TravelPostResponseDto updatePost(@PathVariable Long id, @Valid @RequestBody TravelPostRequestDto request) {
         return travelPostService.updatePost(id, request);
     }
 
-    @DeleteMapping("/{id}")
-    public void deletePost(@PathVariable Long id) {
-        travelPostService.deletePost(id);
+    @PostMapping("/delete/{id}")
+    public TravelPostResponseDto softDeletePost(@PathVariable Long id) {
+        return travelPostService.softDeletePost(id);
     }
+
 
     @GetMapping("/prev/{postId}")
     public TravelPostResponseDto getPreviousPost(@PathVariable Long postId) {
