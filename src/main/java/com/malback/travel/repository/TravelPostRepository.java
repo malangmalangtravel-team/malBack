@@ -20,11 +20,11 @@ public interface TravelPostRepository extends JpaRepository<TravelPost, Long> {
     List<TravelPost> findAll();
 
     // 특정 나라 게시판의 게시글 목록 조회 (정렬 포함)
-    Page<TravelPost> findByCountry_CountryNameOrderByIdDesc(@Param("countryName") String countryName, Pageable pageable);
+    Page<TravelPost> findByCountry_CountryNameAndDeletedAtIsNullOrderByIdDesc(@Param("countryName") String countryName, Pageable pageable);
 
 
     // 특정 나라 게시판의 게시글 타입별 목록 조회 (정렬 포함)
-    Page<TravelPost> findByCountry_CountryNameAndTypeOrderByIdDesc(@Param("countryName") String countryName, @Param("type") BoardType type, Pageable pageable);
+    Page<TravelPost> findByCountry_CountryNameAndTypeAndDeletedAtIsNullOrderByIdDesc(@Param("countryName") String countryName, @Param("type") BoardType type, Pageable pageable);
 
     Optional<TravelPost> findFirstByIdLessThanOrderByIdDesc(Long id); // 이전 게시글
     Optional<TravelPost> findFirstByIdGreaterThanOrderByIdAsc(Long id); // 다음 게시글
