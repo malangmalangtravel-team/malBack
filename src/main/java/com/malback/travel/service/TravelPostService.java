@@ -1,6 +1,10 @@
 package com.malback.travel.service;
 
 import com.malback.humor.dto.humorPostDto.HumorPostResponseDto;
+import com.malback.support.dto.SupportRequestDto;
+import com.malback.support.dto.SupportResponseDto;
+import com.malback.support.entity.Support;
+import com.malback.support.enums.SupportBoardType;
 import com.malback.travel.dto.travelPostDto.TravelPostRequestDto;
 import com.malback.travel.dto.travelPostDto.TravelPostResponseDto;
 import com.malback.travel.entity.Country;
@@ -77,6 +81,20 @@ public class TravelPostService {
 
         // ✅ 저장 후 응답 반환
         return TravelPostResponseDto.fromEntity(travelPostRepository.save(post));
+    }
+
+    @Transactional
+    public TravelPostResponseDto updatePost(Long id, TravelPostRequestDto request) {
+        TravelPost post = travelPostRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+        BoardType boardType = BoardType.valueOf(request.getType().toUpperCase());
+
+        post.setType(boardType);
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+
+        return TravelPostResponseDto.fromEntity(travelPostRepository.save(post), userRepository);
     }
 
     @Transactional

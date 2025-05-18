@@ -5,6 +5,10 @@ import com.malback.humor.dto.humorPostDto.HumorPostResponseDto;
 import com.malback.humor.entity.HumorPost;
 import com.malback.humor.enums.HumorBoardType;
 import com.malback.humor.repository.HumorPostRepository;
+import com.malback.support.dto.SupportRequestDto;
+import com.malback.support.dto.SupportResponseDto;
+import com.malback.support.entity.Support;
+import com.malback.support.enums.SupportBoardType;
 import com.malback.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -48,6 +52,20 @@ public class HumorPostService {
                 .email(request.getEmail())
                 .viewCount(0)
                 .build();
+
+        return HumorPostResponseDto.fromEntity(humorPostRepository.save(post), userRepository);
+    }
+
+    @Transactional
+    public HumorPostResponseDto updatePost(Long id, HumorPostRequestDto request) {
+        HumorPost post = humorPostRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+        HumorBoardType boardType = HumorBoardType.valueOf(request.getType().toUpperCase());
+
+        post.setType(boardType);
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
 
         return HumorPostResponseDto.fromEntity(humorPostRepository.save(post), userRepository);
     }

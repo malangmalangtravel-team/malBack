@@ -51,6 +51,11 @@ public class SupportController {
         return supportService.createPost(request);
     }
 
+    @PutMapping("/{id}")
+    public SupportResponseDto updatePost(@PathVariable Long id, @Valid @RequestBody SupportRequestDto request) {
+        return supportService.updatePost(id, request);
+    }
+
     @PostMapping("/{id}")
     public void deletePost(@PathVariable Long id) {
         supportService.deletePost(id);

@@ -1,5 +1,6 @@
 package com.malback.travel.controller;
 
+import com.malback.humor.dto.humorPostDto.HumorPostRequestDto;
 import com.malback.humor.dto.humorPostDto.HumorPostResponseDto;
 import com.malback.travel.dto.travelPostDto.TravelPostRequestDto;
 import com.malback.travel.dto.travelPostDto.TravelPostResponseDto;
@@ -56,6 +57,11 @@ public class TravelPostController {
             @PathVariable String countryName,
             @Valid @RequestBody TravelPostRequestDto request) {
         return travelPostService.createPost(countryName, request);
+    }
+
+    @PutMapping("/{id}")
+    public TravelPostResponseDto updatePost(@PathVariable Long id, @Valid @RequestBody TravelPostRequestDto request) {
+        return travelPostService.updatePost(id, request);
     }
 
     @DeleteMapping("/{id}")

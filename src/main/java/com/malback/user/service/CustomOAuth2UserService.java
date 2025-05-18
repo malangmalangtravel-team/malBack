@@ -43,7 +43,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
                         .name(name)
                         .picture(picture)
                         .provider(provider)
-                        .nickname(generateDefaultNickname(name)) // 기본 닉네임 생성
+                        .nickname(generateDefaultNickname(name)) // 기본 닉네임 생성. 중복되면 1씩 증가
                         .role(Role.USER)
                         .build());
 
@@ -58,7 +58,25 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     private String generateDefaultNickname(String name) {
-        // 기본 닉네임: 이름 + 랜덤 숫자 (또는 로직에 맞게 수정 가능)
-        return name + "_" + (int) (Math.random() * 10000);
+        String baseNickname = (name == null || name.isBlank()) ? "user" : name.trim();
+
+        int maxBaseLength = 10;
+        if (baseNickname.length() > maxBaseLength) {
+            baseNickname = baseNickname.substring(0, maxBaseLength);
+        }
+
+        String nickname = baseNickname;
+        int suffix = 0;
+        int maxAttempts = 1000;
+
+        while (userRepository.findByNickname(nickname).isPresent()) {
+            suffix++;
+            nickname = baseNickname + "_" + suffix;
+            if (suffix > maxAttempts) {
+                throw new RuntimeException("닉네임 생성 실패: 중복된 닉네임이 너무 많습니다.");
+            }
+        }
+
+        return nickname;
     }
 }

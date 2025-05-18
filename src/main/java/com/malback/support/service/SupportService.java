@@ -53,6 +53,20 @@ public class SupportService {
     }
 
     @Transactional
+    public SupportResponseDto updatePost(Long id, SupportRequestDto request) {
+        Support post = supportRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("해당 게시글이 존재하지 않습니다."));
+
+        SupportBoardType boardType = SupportBoardType.valueOf(request.getType().toUpperCase());
+
+        post.setType(boardType);
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+
+        return SupportResponseDto.fromEntity(supportRepository.save(post), userRepository);
+    }
+
+    @Transactional
     public void deletePost(Long id) {
         Support post = supportRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("게시글을 찾을 수 없습니다."));
