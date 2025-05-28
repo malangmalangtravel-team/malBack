@@ -15,8 +15,8 @@ import java.util.Optional;
 
 public interface HumorPostRepository extends JpaRepository<HumorPost, Long> {
     Page<HumorPost> findByDeletedAtIsNullAndType(Pageable pageable, HumorBoardType type);
-    Optional<HumorPost> findFirstByIdLessThanOrderByIdDesc(Long id); // 이전 게시글
-    Optional<HumorPost> findFirstByIdGreaterThanOrderByIdAsc(Long id); // 다음 게시글
+    Optional<HumorPost> findFirstByIdLessThanAndDeletedAtIsNullOrderByIdDesc(Long id); // 이전 게시글
+    Optional<HumorPost> findFirstByIdGreaterThanAndDeletedAtIsNullOrderByIdAsc(Long id); // 다음 게시글
     // 조회수 증가
     @Modifying
     @Query("UPDATE HumorPost p SET p.viewCount = p.viewCount + 1 WHERE p.id = :id")

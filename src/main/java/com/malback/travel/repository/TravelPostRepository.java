@@ -36,6 +36,8 @@ public interface TravelPostRepository extends JpaRepository<TravelPost, Long> {
 
     // 사이트맵 추가
     List<TravelPost> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
-
+    // 사이트맵 나라이름
+    @Query("SELECT t FROM TravelPost t JOIN FETCH t.country c WHERE t.createdAt BETWEEN :start AND :end")
+    List<TravelPost> findWithCountryByCreatedAtBetween(@Param("start") LocalDateTime start, @Param("end") LocalDateTime end);
 }
 

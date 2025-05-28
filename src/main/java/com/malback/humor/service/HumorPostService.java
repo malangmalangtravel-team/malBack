@@ -90,14 +90,14 @@ public class HumorPostService {
 
     // 이전 글
     public HumorPostResponseDto getPreviousPost(Long currentId) {
-        return humorPostRepository.findFirstByIdLessThanOrderByIdDesc(currentId)
+        return humorPostRepository.findFirstByIdLessThanAndDeletedAtIsNullOrderByIdDesc(currentId)
                 .map(post -> HumorPostResponseDto.fromEntity(post, userRepository))
                 .orElse(null);
     }
 
     // 다음 글
     public HumorPostResponseDto getNextPost(Long currentId) {
-        return humorPostRepository.findFirstByIdGreaterThanOrderByIdAsc(currentId)
+        return humorPostRepository.findFirstByIdGreaterThanAndDeletedAtIsNullOrderByIdAsc(currentId)
                 .map(post -> HumorPostResponseDto.fromEntity(post, userRepository))
                 .orElse(null);
     }

@@ -1,5 +1,7 @@
 package com.malback.util.sitemap;
 
+import com.malback.hotDeal.entity.HotDealPost;
+import com.malback.hotDeal.repository.HotDealPostRepository;
 import com.malback.humor.entity.HumorPost;
 import com.malback.humor.repository.HumorPostRepository;
 import com.malback.travel.entity.TravelPost;
@@ -21,20 +23,35 @@ public class SitemapService {
 
     private final HumorPostRepository humorPostRepository;
     private final TravelPostRepository travelPostRepository;
+    private final HotDealPostRepository hotdealPostRepository;
+
+    // 로컬 내부 경로 테스트
+    /*
+    private final String humorSitemapPath = "src/main/resources/static//sitemap-humor-posts.xml";
+    private final String travelSitemapPath = "src/main/resources/static/sitemap-travel-posts.xml";
+    private final String sitemapIndexPath = "src/main/resources/static//sitemap.xml";
+    */
 
     // 외부 경로에 저장.
     private final String humorSitemapPath = "/var/www/malangmalang/sitemap/sitemap-humor-posts.xml";
     private final String travelSitemapPath = "/var/www/malangmalang/sitemap/sitemap-travel-posts.xml";
+    private final String hotdealSitemapPath = "/var/www/malangmalang/sitemap/sitemap-hotdeal-posts.xml";
     private final String sitemapIndexPath = "/var/www/malangmalang/sitemap/sitemap.xml";
 
     public void appendYesterdayPostsToSitemap() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDateTime start = yesterday.atStartOfDay();  // 어제 00:00:00
         LocalDateTime end = yesterday.atTime(LocalTime.MAX); // 어제 23:59:59.999999999
+        // 모든 날짜
+        /*
+        LocalDateTime start = LocalDateTime.of(1970, 1, 1, 0, 0, 0);
+        LocalDateTime end = LocalDateTime.now();
+         */
 
 
         List<HumorPost> humorPosts = humorPostRepository.findByCreatedAtBetween(start, end);
-        List<TravelPost> travelPosts = travelPostRepository.findByCreatedAtBetween(start, end);
+        List<TravelPost> travelPosts = travelPostRepository.findWithCountryByCreatedAtBetween(start, end);
+        List<HotDealPost> hotdealPosts = hotdealPostRepository.findByCreatedAtBetween(start, end);
         System.out.println("조회된 유머 포스트 수: " + humorPosts.size());
         System.out.println("조회된 여행 포스트 수: " + travelPosts.size());
 
@@ -46,7 +63,12 @@ public class SitemapService {
             ).toList());
 
             appendPostsToFile(travelSitemapPath, travelPosts.stream().map(post ->
-                    buildUrlEntry("https://malangmalangtravel.com/travelPostDetail/" + post.getId(),
+                    buildUrlEntry("https://malangmalangtravel.com/travelPostDetail/" + post.getCountry().getCountryName() + "/"  + post.getId(),
+                            post.getCreatedAt().toLocalDate().toString())
+            ).toList());
+
+            appendPostsToFile(hotdealSitemapPath, hotdealPosts.stream().map(post ->
+                    buildUrlEntry("https://malangmalangtravel.com/hotdealPostDetail/" + post.getId(),
                             post.getCreatedAt().toLocalDate().toString())
             ).toList());
 
