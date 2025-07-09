@@ -116,18 +116,28 @@ public class JjangParsing {
     private String addWidthToImages(String content) {
         Document doc = Jsoup.parse(content);
 
-        // 이미지 태그에 width 스타일 추가
+        // 이미지 태그
         Elements imgElements = doc.select("img");
         for (Element img : imgElements) {
-            img.attr("style", "width:100%;"); // 이미지 태그에 style 속성 추가
+            applyResponsiveStyle(img);
         }
 
-        // 비디오 태그에 width 스타일 추가
+        // 비디오 태그
         Elements videoElements = doc.select("video");
         for (Element video : videoElements) {
-            video.attr("style", "width:100%;"); // 비디오 태그에 style 속성 추가
+            applyResponsiveStyle(video);
         }
 
         return doc.html();
     }
+
+    private void applyResponsiveStyle(Element element) {
+        String style = element.attr("style");
+        style = style.replaceAll("(?i)\\bwidth\\s*:\\s*[^;]+;?", "");
+        if (!style.isEmpty() && !style.trim().endsWith(";")) {
+            style += ";";
+        }
+        element.attr("style", style + " width:75%;");
+    }
+
 }

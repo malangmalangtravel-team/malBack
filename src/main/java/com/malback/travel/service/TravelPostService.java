@@ -46,9 +46,18 @@ public class TravelPostService {
     public Page<TravelPostResponseDto> getPosts(String countryName, BoardType type, int page, int size, UserRepository userRepository) {
         PageRequest pageRequest = PageRequest.of(page, size);
 
-        Page<TravelPost> posts = (type == null)
-                ? travelPostRepository.findByCountry_CountryNameAndDeletedAtIsNullOrderByIdDesc(countryName, pageRequest)
-                : travelPostRepository.findByCountry_CountryNameAndTypeAndDeletedAtIsNullOrderByIdDesc(countryName, type, pageRequest);
+        Page<TravelPost> posts;
+
+        if (countryName == null || countryName.isBlank()) {
+            // countryName이 없으면 전체 게시글 조회
+            posts = (type == null)
+                    ? travelPostRepository.findByDeletedAtIsNullOrderByIdDesc(pageRequest)
+                    : travelPostRepository.findByTypeAndDeletedAtIsNullOrderByIdDesc(type, pageRequest);
+        } else {
+            posts = (type == null)
+                    ? travelPostRepository.findByCountry_CountryNameAndDeletedAtIsNullOrderByIdDesc(countryName, pageRequest)
+                    : travelPostRepository.findByCountry_CountryNameAndTypeAndDeletedAtIsNullOrderByIdDesc(countryName, type, pageRequest);
+        }
 
         return posts.map(post -> TravelPostResponseDto.fromEntity(post, userRepository));
     }

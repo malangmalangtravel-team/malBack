@@ -26,6 +26,12 @@ public interface TravelPostRepository extends JpaRepository<TravelPost, Long> {
     // 특정 나라 게시판의 게시글 타입별 목록 조회 (정렬 포함)
     Page<TravelPost> findByCountry_CountryNameAndTypeAndDeletedAtIsNullOrderByIdDesc(@Param("countryName") String countryName, @Param("type") BoardType type, Pageable pageable);
 
+    // country 조건 없이, 삭제 안된 게시글 전체를 id 내림차순으로 페이징 조회
+    Page<TravelPost> findByDeletedAtIsNullOrderByIdDesc(Pageable pageable);
+
+    // 게시글 타입 조건도 추가한 버전 (type이 null이면 조건 무시하고 싶다면 별도 구현 필요)
+    Page<TravelPost> findByTypeAndDeletedAtIsNullOrderByIdDesc(BoardType type, Pageable pageable);
+
     Optional<TravelPost> findFirstByIdLessThanOrderByIdDesc(Long id); // 이전 게시글
     Optional<TravelPost> findFirstByIdGreaterThanOrderByIdAsc(Long id); // 다음 게시글
 

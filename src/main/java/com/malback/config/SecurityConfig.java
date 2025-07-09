@@ -30,7 +30,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/", "/api/**", "/sitemap.xml", "/sitemap-humor-posts.xml", "sitemap-travel-posts.xml").permitAll()
+                        .requestMatchers("/", "/api/**", "/sitemap*.xml").permitAll()
                         .anyRequest().authenticated()
                 )
                 .oauth2Login(oauth2 -> oauth2

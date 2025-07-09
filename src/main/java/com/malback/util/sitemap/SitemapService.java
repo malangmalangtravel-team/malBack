@@ -29,8 +29,9 @@ public class SitemapService {
     /*
     private final String humorSitemapPath = "src/main/resources/static//sitemap-humor-posts.xml";
     private final String travelSitemapPath = "src/main/resources/static/sitemap-travel-posts.xml";
+    private final String hotdealSitemapPath = "src/main/resources/static/sitemap-hotdeal-posts.xml";
     private final String sitemapIndexPath = "src/main/resources/static//sitemap.xml";
-    */
+     */
 
     // 외부 경로에 저장.
     private final String humorSitemapPath = "/var/www/malangmalang/sitemap/sitemap-humor-posts.xml";
@@ -54,9 +55,11 @@ public class SitemapService {
         List<HotDealPost> hotdealPosts = hotdealPostRepository.findByCreatedAtBetween(start, end);
         System.out.println("조회된 유머 포스트 수: " + humorPosts.size());
         System.out.println("조회된 여행 포스트 수: " + travelPosts.size());
+        System.out.println("조회된 핫딜 포스트 수: " + hotdealPosts.size());
 
         try {
             // 각각 누적 방식으로 파일 업데이트
+
             appendPostsToFile(humorSitemapPath, humorPosts.stream().map(post ->
                     buildUrlEntry("https://malangmalangtravel.com/humorPostDetail/" + post.getId(),
                             post.getCreatedAt().toLocalDate().toString())
