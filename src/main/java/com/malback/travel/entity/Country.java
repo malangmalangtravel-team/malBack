@@ -25,6 +25,12 @@ public class Country {
     @Column(name = "country_img")
     private String countryImg;
 
+    @Column(name = "country_location")
+    private String countryLocation;
+
+    @Column(name = "country_summary")
+    private String countrySummary;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 

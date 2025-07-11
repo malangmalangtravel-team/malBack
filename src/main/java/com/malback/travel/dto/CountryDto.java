@@ -19,6 +19,8 @@ public class CountryDto {
     private Long id;
     private String countryName;
     private String countryImg;
+    private String countryLocation;
+    private String countrySummary;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -26,6 +28,8 @@ public class CountryDto {
         return CountryDto.builder()
                 .id(country.getId())
                 .countryName(country.getCountryName())
+                .countryLocation(country.getCountryLocation())
+                .countrySummary(country.getCountrySummary())
                 .countryImg(country.getCountryImg())
                 .build();
     }
